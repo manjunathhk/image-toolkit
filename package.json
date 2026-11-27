@@ -1,0 +1,52 @@
+{
+  "name": "@manjunathhk/image-toolkit",
+  "version": "0.1.0",
+  "description": "Safe cross-platform batch image conversion with Sharp",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "prepack": "npm run build",
+    "test:package": "node scripts/test-package.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manjunathhk/image-toolkit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/manjunathhk/image-toolkit/issues"
+  },
+  "homepage": "https://github.com/manjunathhk/image-toolkit#readme",
+  "dependencies": {
+    "commander": "^15.1.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.11",
+    "eslint": "^10.15.0",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.2"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "image-toolkit": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ]
+}
