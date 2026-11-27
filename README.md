@@ -59,7 +59,7 @@ EXIF orientation is applied before resizing. Metadata is stripped and transparen
 
 Size targeting first tries the requested quality, then a bounded search down to quality 20 (or the requested quality if lower). At most nine encodes are performed. The size is checked on every candidate; if the floor cannot meet the target, conversion fails without replacing any existing output. Dimensions are never reduced to meet a size target. The search does not promise the globally highest possible quality because encoded sizes need not be monotonic.
 
-Each file reports DONE, SKIP, PLAN or FAIL. Successful conversions include byte counts and savings (negative means growth). Summary byte totals and savings include successful conversions only; dry-run plans count as skipped. The summary includes elapsed time.
+Each file reports DONE, SKIP, PLAN or FAIL. Color-capable terminals show green DONE, yellow SKIP, red FAIL and cyan PLAN labels, with an emphasized summary. Redirected output stays plain. Set `NO_COLOR` to disable colors. Successful conversions include byte counts and savings (negative means growth). Summary byte totals and savings include successful conversions only; dry-run plans count as skipped. The summary includes elapsed time.
 
 | Exit code | Meaning                                                                 |
 | --------- | ----------------------------------------------------------------------- |

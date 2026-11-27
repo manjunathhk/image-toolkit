@@ -11,6 +11,7 @@ import {
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import sharp, { type FitEnum, type FormatEnum } from "sharp";
+import { logOutput } from "./logger.js";
 
 // Do not retain file handles between jobs, especially when replacing files on Windows.
 sharp.cache({ files: 0 });
@@ -132,7 +133,7 @@ async function encode(file: string, o: Options): Promise<Buffer> {
 export async function convert(
   directory: string,
   o: Options,
-  log: (line: string) => void = console.log,
+  log: (line: string) => void = logOutput,
 ): Promise<number> {
   validate(o);
   const root = path.resolve(directory),
