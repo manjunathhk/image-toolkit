@@ -1,0 +1,71 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Exact package.json version to publish (for example 0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - name: Validate requested version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
+          if (!/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(version)) {
+            throw new Error('Only stable X.Y.Z versions may be published by this workflow');
+          }
+          if (process.env.REQUESTED_VERSION !== version) {
+            throw new Error('Requested version must match package.json exactly');
+          }
+          NODE
+      - name: Check registry before publishing
+        id: registry
+        run: |
+          set -euo pipefail
+          name=$(node -p "JSON.parse(require('fs').readFileSync('package.json')).name")
+          version=$(node -p "JSON.parse(require('fs').readFileSync('package.json')).version")
+          status=$(curl --retry 3 --silent --show-error --output /dev/null --write-out '%{http_code}' "https://registry.npmjs.org/$name/$version")
+          case "$status" in
+            200) echo 'publish=false' >> "$GITHUB_OUTPUT"; echo "::notice::$name@$version already exists; skipping." ;;
+            404) echo 'publish=true' >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::Registry check failed with HTTP $status"; exit 1 ;;
+          esac
+      - run: npm ci
+        if: steps.registry.outputs.publish == 'true'
+      - name: Pack release
+        if: steps.registry.outputs.publish == 'true'
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+      - name: Publish via npm trusted publishing
+        if: steps.registry.outputs.publish == 'true'
+        run: npm publish "$RUNNER_TEMP"/manjunathhk-image-toolkit-*.tgz --access public --provenance
